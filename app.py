@@ -1,5 +1,5 @@
 from crypt import methods
-from flask import Flask, jsonify, redirect, render_template, request, url_for
+from flask import Flask, jsonify, redirect, render_template, request, url_for # type: ignore
 import wordsgenerator
 
 app = Flask(__name__)

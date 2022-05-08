@@ -8,35 +8,45 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
-    <title>Document</title>
+    <title>Генератор слов для "Words of Wonders"</title>
 </head>
 
 <body>
     <div class="container py-5">
-        <h1>WOW</h1>
-        <p class="text">Это небольшой сервис для того, чтобы помочь сгенерировать нужные слова из предоставленных букв
-        </p>
-        <div class="card">
+        <div class="mb-4">
+            <img src="{{url_for('static', filename='wow_logo.png')}}" class="rounded mb-3" alt="Words of Wonders Logo">
+            <h1>Words of Wonders: генератор слов</h1>
+            <p class="text">Это небольшой сервис для того, чтобы помочь сгенерировать нужные слова из предоставленных
+                букв.
+                Слова можно использовать в игре "<a
+                    href="https://play.google.com/store/apps/details?id=com.fugo.wow">Words of Wonders</a>"
+            </p>
+        </div>
+        <div class="card col col-xl-6 mx-auto">
             <div class="card-body">
                 <form action="/result" method="post">
                     <div class="mb-3">
                         <label for="letters" class="form-label">Буквы</label>
-                        <input type="text" class="form-control" id="letters" name="sample"
+                        <input type="text" class="form-control form-control-lg" id="letters" name="sample"
                             placeholder="Русские буквы через пробел или слитно" required>
                         <small class="form-text text-muted">Используйте только русские буквы. Максимальное количество
-                            букв - 10</small>
+                            букв&nbsp;-&nbsp;10</small>
                     </div>
                     <div class="mb-3">
                         <div class="row">
                             <div class="col"><label for="min" class="form-label">Минимальная длина слова</label>
-                                <input type="number" class="form-control" id="min" name="result_min" placeholder="Например: 3" required>
+                                <input type="number" class="form-control" id="min" name="result_min"
+                                    placeholder="Например: 3" required>
+                                <small class="form-text text-muted">Для игры обычно достаточно 3</small>
                             </div>
                             <div class="col"><label for="max" class="form-label">Максимальная длина слова</label>
-                                <input type="number" class="form-control" id="max" name="result_max" placeholder="Например: 5" required>
+                                <input type="number" class="form-control" id="max" name="result_max"
+                                    placeholder="Например: 5" required>
+                                <small class="form-text text-muted">Для игры обычно достаточно 6</small>
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Создать слова</button>
+                    <button type="submit" class="btn btn-lg btn-success w-100">Создать слова</button>
 
                 </form>
             </div>

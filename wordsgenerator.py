@@ -3,14 +3,7 @@ import json
 import os
 from typing import Dict, Union
 
-from pydantic import (
-    BaseModel,
-    Field,
-    NoneStr,
-    ValidationError,
-    root_validator,
-    validator,
-)
+from pydantic import BaseModel,Field,NoneStr,ValidationError,root_validator,validator # type: ignore
 
 
 class WordQuestion(BaseModel):
