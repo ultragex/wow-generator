@@ -137,7 +137,7 @@ def get_words(
         answer = WordAnswer(success=True, sample=params.sample, message="OK")
 
         for result_len in range(params.result_min, params.result_max + 1):
-            for i in set(itertools.permutations(sample, result_len)):
+            for i in set(itertools.permutations(params.sample, result_len)):
                 word = "".join(i)
                 if word in russ_dict:
                     answer.data.append(
