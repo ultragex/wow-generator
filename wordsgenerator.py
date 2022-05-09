@@ -15,7 +15,7 @@ from pydantic import (
 
 
 class WordQuestion(BaseModel):
-    sample: str = Field(min_length=1)
+    sample: str
     result_min: int = Field(default=3, gt=1, le=21)
     result_max: int = Field(default=6, gt=1, le=21)
 
@@ -41,6 +41,11 @@ class WordQuestion(BaseModel):
         _sample: str = values.get("sample")
         _result_min: int = values.get("result_min")
         _result_max: int = values.get("result_max")
+
+        if not _sample:
+            raise ValueError(
+                "Вы не указали ни одной буквы. Мы не сможем создать слова из ничего. Мы так не умеем."
+            )
 
         if not _sample.isalpha():  # проверяем, что только буквы
             raise ValueError(
