@@ -1,15 +1,16 @@
 import itertools
 import json
 import os
-from typing import Dict, Union
+from typing import Dict, List
+import pandas as pd #type: ignore
 
 from pydantic import BaseModel,Field,NoneStr,ValidationError,root_validator,validator # type: ignore
 
 
 class WordQuestion(BaseModel):
     sample: str = Field(min_length=1)
-    result_min: int = Field(default=2, gt=1, le=10)
-    result_max: int = Field(default=10, gt=1, le=10)
+    result_min: int = Field(default=3, gt=1, le=21)
+    result_max: int = Field(default=6, gt=1, le=21)
 
     @validator("sample", pre=True)
     def clean_sample(cls, sample):
@@ -64,10 +65,10 @@ class WordQuestion(BaseModel):
             )
 
         if (
-            len(_sample) > 10
+            len(_sample) > 20
         ):  # генерация через мутации для 10 символов занимает много времени, поэтому проверка на то, что используем максимум 10 букв
             raise ValueError(
-                f"Слишком много букв ({len(_sample)}). Мы будем создавать слова очень долго. Поэтому используйте максимум 10 букв. Простите за такое ограничение."
+                f"Слишком много букв ({len(_sample)}). Мы будем создавать слова очень долго. Поэтому используйте максимум 20 букв. Простите за такое ограничение."
             )
 
         if _result_min > _result_max:
@@ -117,20 +118,36 @@ def make_russian_dict() -> Dict[str, Dict[str, str]]:
 def get_words(
     sample: str, result_min: int, result_max: int, russ_dict: Dict[str, Dict[str, str]]
 ) -> WordAnswer:
-
+    
     try:
         params = WordQuestion(
             sample=sample, result_min=result_min, result_max=result_max
         )
         answer = WordAnswer(success=True, sample=params.sample, message="OK")
 
-        for result_len in range(params.result_min, params.result_max + 1):
-            for i in set(itertools.permutations(params.sample, result_len)):
-                word = "".join(i)
-                if word in russ_dict:
-                    answer.data.append(
-                        {"word": word, "definition": russ_dict[word]["definition"]}
-                    )
+        rudict = {key: val['definition'] for key, val in russ_dict.items()}
+        data = pd.DataFrame.from_dict({'word':rudict.keys(), 'definition': rudict.values()})
+        data['word_tuple'] = data.word.apply(lambda x: tuple(sorted(tuple(x))))
+
+        words_generated: List[List[str]] = []
+        for word_len in range(params.result_min, params.result_max+1):
+            words_generated.extend(set(itertools.combinations(params.sample, word_len)))
+
+        words_generated = tuple(map(tuple, tuple(map(sorted, words_generated))))
+
+        result = {key: val['definition'] for key, val in data[data.word_tuple.isin(words_generated)][['word', 'definition']].set_index('word').T.to_dict().items()}
+        result = dict(sorted(result.items(), key=lambda x: len(x[0])))
+
+        for word, definition in result.items():
+            answer.data.append({'word':word, 'definition': definition})
+
+        # for result_len in range(params.result_min, params.result_max + 1):
+        #     for i in set(itertools.permutations(params.sample, result_len)):
+        #         word = "".join(i)
+        #         if word in russ_dict:
+        #             answer.data.append(
+        #                 {"word": word, "definition": russ_dict[word]["definition"]}
+        #             )
 
         if not len(answer.data):
             return WordAnswer(
