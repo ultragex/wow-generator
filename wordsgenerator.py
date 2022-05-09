@@ -2,9 +2,16 @@ import itertools
 import json
 import os
 from typing import Dict, List
-import pandas as pd #type: ignore
 
-from pydantic import BaseModel,Field,NoneStr,ValidationError,root_validator,validator # type: ignore
+import pandas as pd  # type: ignore
+from pydantic import (
+    BaseModel,
+    Field,
+    NoneStr,  # type: ignore
+    ValidationError,
+    root_validator,
+    validator,
+)
 
 
 class WordQuestion(BaseModel):
@@ -118,28 +125,38 @@ def make_russian_dict() -> Dict[str, Dict[str, str]]:
 def get_words(
     sample: str, result_min: int, result_max: int, russ_dict: Dict[str, Dict[str, str]]
 ) -> WordAnswer:
-    
+
     try:
         params = WordQuestion(
             sample=sample, result_min=result_min, result_max=result_max
         )
         answer = WordAnswer(success=True, sample=params.sample, message="OK")
 
-        rudict = {key: val['definition'] for key, val in russ_dict.items()}
-        data = pd.DataFrame.from_dict({'word':rudict.keys(), 'definition': rudict.values()})
-        data['word_tuple'] = data.word.apply(lambda x: tuple(sorted(tuple(x))))
+        rudict = {key: val["definition"] for key, val in russ_dict.items()}
+        data = pd.DataFrame.from_dict(
+            {"word": rudict.keys(), "definition": rudict.values()}
+        )
+        data["word_tuple"] = data.word.apply(lambda x: tuple(sorted(tuple(x))))
 
         words_generated: List[List[str]] = []
-        for word_len in range(params.result_min, params.result_max+1):
+        for word_len in range(params.result_min, params.result_max + 1):
             words_generated.extend(set(itertools.combinations(params.sample, word_len)))
 
         words_generated = tuple(map(tuple, tuple(map(sorted, words_generated))))
 
-        result = {key: val['definition'] for key, val in data[data.word_tuple.isin(words_generated)][['word', 'definition']].set_index('word').T.to_dict().items()}
+        result = {
+            key: val["definition"]
+            for key, val in data[data.word_tuple.isin(words_generated)][
+                ["word", "definition"]
+            ]
+            .set_index("word")
+            .T.to_dict()
+            .items()
+        }
         result = dict(sorted(result.items(), key=lambda x: len(x[0])))
 
         for word, definition in result.items():
-            answer.data.append({'word':word, 'definition': definition})
+            answer.data.append({"word": word, "definition": definition})
 
         # for result_len in range(params.result_min, params.result_max + 1):
         #     for i in set(itertools.permutations(params.sample, result_len)):
