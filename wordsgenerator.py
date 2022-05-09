@@ -78,11 +78,6 @@ class WordQuestion(BaseModel):
         return values
 
 
-class WordAnswerData(BaseModel):
-    word: str
-    definition: str
-
-
 class WordAnswer(BaseModel):
     success: bool = Field(default=False)
     sample: str
