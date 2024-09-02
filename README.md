@@ -13,4 +13,6 @@
 
 
 ## Запуск:
-```flask --app app run
+```sh
+flask --app app run
+```
